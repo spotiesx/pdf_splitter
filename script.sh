@@ -29,7 +29,6 @@ elif [[ $1 = "" ]]; then
     FILE=""
     PAGE="1"
     OUTPUTNAME=""
-    _RESULTPATH="~/Desktop/studies/operating_systems/pdf_splitter/result_pdfs/"
 
     while [ "$OPTION" != "Finish" ] ; do
         MENU=("Pick a file: $FILE"
@@ -61,7 +60,7 @@ elif [[ $1 = "" ]]; then
                         if [[ $OUTPUTNAME == "" ]]; then
                             OUTPUTNAME="extracted"
                         fi
-                        qpdf $FILE --pages . $PAGE -- ~/Desktop/studies/operating_systems/pdf_splitter/result_pdfs/$OUTPUTNAME.pdf   
+                        qpdf $FILE --pages . $PAGE -- `pwd`/result_pdfs/$OUTPUTNAME.pdf   
                     fi
             esac
     done
