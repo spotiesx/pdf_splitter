@@ -10,79 +10,62 @@
 # 
 #
 # Licensed under GPL (see /usr/share/common-licenses/GPL for more # details or contact the Free Software Foundation for a copy)
-# 2.   Code should have comments.
 
-# 3.   Script should be immune to various “unwanted” scenarios   of usage
-
-# 4. Each script should have at least two options:
-
-#    -h – short help
-
-#    -v – version and author’s info
-
-# while getopts hvf:q OPT; do
-#     case $OPT in
-#         h) help;;
-#         v) version;;
-#         f) FILE=$OPTARG;;
-#         q) echo "Text"
-#             exit;;
-#         *) echo "Unknown option";;
-#     esac
-# done
 if [[ $1 = "-h" ]]; then
     echo "Short help instructions :)"
 elif [[ $1 = "-v" ]]; then
-    # _LINE="someline content"
-    # LAST="${_LINE: -1}"
-    # echo $LAST
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     echo "          Version: 1.0.3"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     echo "Milosz (spoties.wojcik@gmail.com)"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-else
+elif [[ $1 = "" ]]; then
     option(){
         OPTION=`zenity --list --column=Menu "${MENU[@]}" --width 400 --height 500`
     }
-    _SCRIPTPATH=""
-    _INPUTNAME=""
-    _OUTPUTNAME=""
-    _DIR1=""
-    _DIR2="~/Desktop/studies/operating_systems/pdf_splitter/result_pdfs"
-    _PAGE=""
+
+    _SCRIPTPATH = pwd
+    SIZE="0"
+    FILE=""
+    PAGE="1"
+    OUTPUTNAME=""
+    _RESULTPATH="~/Desktop/studies/operating_systems/pdf_splitter/result_pdfs/"
 
     while [ "$OPTION" != "Finish" ] ; do
-        MENU=("Path to input PDF file directory: $DIR1"
-            "Input file name (without .pdf extension): $INPUTNAME"
-            "Output file name (without .pdf extension): $OUTPUTNAME"
+        MENU=("Pick a file: $FILE"
+            "Output PDF name: $OUTPUTNAME"  
             "Page number: $PAGE"
             "Execute"
             "Finish")
-
-        if [[ ${_INPUTNAME: -4} -ne ".pdf" ]]; then
-            _INPUTNAME="${_INPUTNAME}.pdf"
-        fi
         clear
         option
+        re='^[0-9]+$'
             case $OPTION in
-                "Path to input PDF file directory: $DIR1")
-                    DIR1=`zenity --entry --text "Enter the path to the file: "`;;
-                "Input file name (without .pdf extension): $INPUTNAME")
-                    INPUTNAME=`zenity --entry --text "Enter the path to the file: "`'';;
-                "Output file name (without .pdf extension): $OUTPUTNAME")
-                    OUTPUTNAME=`zenity --entry --text "Enter the path to the file: "`;;
+                "Pick a file: $FILE")
+                    FILE=`zenity --file-selection --file-filter="*.pdf" --title="Select a File"`
+                    SIZE="`qpdf --show-npages $FILE`";;
+                "Output PDF name: $OUTPUTNAME")
+                    OUTPUTNAME=`zenity --entry --text "Enter output PDF name: "`;;
                 "Page number: $PAGE")
-                    PAGE=`zenity --entry --text "Enter the path to the file: "`;;
+                    PAGE=`zenity --entry --text "Enter page number: "`;;
                 "Execute")
-                    # if [[ ${_INPUTNAME: -4} -ne ".pdf" ]]; then
-                    #     _INPUTNAME="${_INPUTNAME}.pdf"
-                    # fi;;
-                    _SCRIPTPATH = pwd
-                    cd $DIR2
-                    qpdf $DIR1/$INPUTNAME.pdf --pages . $PAGE -- $OUTPUTNAME.pdf
-                    cd $_SCRIPTPATH
+                    if [[ $FILE == "" ]]; then
+                        zenity --error --width=400 --height=200 --text "You did not pick any file!"
+                    elif ! [[ $PAGE =~ $re ]]; then
+                        PAGE=""
+                        zenity --error --width=400 --height=200 --text "Page number is not an integer!"
+                    elif [[ $PAGE > $SIZE ]]; then
+                        PAGE=""
+                        zenity --error --width=400 --height=200 --text "There are no pages with this index!"
+                    else
+                        if [[ $OUTPUTNAME == "" ]]; then
+                            OUTPUTNAME="extracted"
+                        fi
+                        qpdf $FILE --pages . $PAGE -- ~/Desktop/studies/operating_systems/pdf_splitter/result_pdfs/$OUTPUTNAME.pdf   
+                    fi
             esac
     done
+else 
+    echo "Unknown option"
 fi
 
