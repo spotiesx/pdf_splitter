@@ -27,13 +27,15 @@ elif [[ $1 = "" ]]; then
     _SCRIPTPATH = pwd
     SIZE="0"
     FILE=""
-    PAGE="1"
+    STARTINGPAGE="1"
+    ENDINGPAGE="1"
     OUTPUTNAME=""
 
     while [ "$OPTION" != "Finish" ] ; do
         MENU=("Pick a file: $FILE"
             "Output PDF name: $OUTPUTNAME"  
-            "Page number: $PAGE"
+            "Starting page number: $STARTINGPAGE"  
+            "Ending page number: $ENDINGPAGE"
             "Execute"
             "Finish")
         clear
@@ -45,23 +47,48 @@ elif [[ $1 = "" ]]; then
                     SIZE="`qpdf --show-npages $FILE`";;
                 "Output PDF name: $OUTPUTNAME")
                     OUTPUTNAME=`zenity --entry --text "Enter output PDF name: "`;;
-                "Page number: $PAGE")
-                    PAGE=`zenity --entry --text "Enter page number: "`;;
+                "Starting page number: $STARTINGPAGE" )
+                    STARTINGPAGE=`zenity --entry --text "Enter starting page number: "`;;
+                "Ending page number: $ENDINGPAGE")
+                    ENDINGPAGE=`zenity --entry --text "Enter ending page number: "`;;
                 "Execute")
-                    if [[ $FILE == "" ]]; then
-                        zenity --error --width=400 --height=200 --text "You did not pick any file!"
-                    elif ! [[ $PAGE =~ $re ]]; then
-                        PAGE=""
-                        zenity --error --width=400 --height=200 --text "Page number is not an integer!"
-                    elif [[ $PAGE > $SIZE ]]; then
-                        PAGE=""
-                        zenity --error --width=400 --height=200 --text "There are no pages with this index!"
-                    else
-                        if [[ $OUTPUTNAME == "" ]]; then
-                            OUTPUTNAME="extracted"
+                    if [[ $ENDINGPAGE == "" ]]; then
+                        if [[ $FILE == "" ]]; then
+                            zenity --error --width=400 --height=200 --text "You did not pick any file!"
+                        elif ! [[ $STARTINGPAGE =~ $re ]]; then
+                            STARTINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "Page number is not an integer!"
+                        elif [[ $STARTINGPAGE > $SIZE ]]; then
+                            STARTINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "There are no pages with this index!"
+                        else
+                            if [[ $OUTPUTNAME == "" ]]; then
+                                OUTPUTNAME="extracted"
+                            fi
+                            qpdf $FILE --pages . $STARTINGPAGE -- `pwd`/result_pdfs/$OUTPUTNAME.pdf   
                         fi
-                        qpdf $FILE --pages . $PAGE -- `pwd`/result_pdfs/$OUTPUTNAME.pdf   
-                    fi
+                    else
+                        if [[ $FILE == "" ]]; then
+                            zenity --error --width=400 --height=200 --text "You did not pick any file!"
+                        elif [[ $STARTINGPAGE > $ENDINGPAGE ]]; then
+                            STARTINGPAGE=""
+                            ENDINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "Starting page is greater than ending page"
+                        elif ! [[ $STARTINGPAGE =~ $re ]]; then
+                            STARTINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "Starting page number is not an integer!"
+                        elif ! [[ $ENDINGPAGE =~ $re ]]; then
+                            ENDINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "Ending page number is not an integer!"
+                        elif [[ $ENDINGPAGE > $SIZE ]]; then
+                            ENDINGPAGE=""
+                            zenity --error --width=400 --height=200 --text "There are no pages with this index!"
+                        else
+                            if [[ $OUTPUTNAME == "" ]]; then
+                                OUTPUTNAME="extracted"
+                            fi
+                            qpdf $FILE --pages . $STARTINGPAGE-$ENDINGPAGE -- `pwd`/result_pdfs/$OUTPUTNAME.pdf   
+                    fi 
             esac
     done
 else 
