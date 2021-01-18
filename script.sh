@@ -32,7 +32,7 @@ elif [[ $1 = "" ]]; then
     OUTPUTNAME=""
 
     while [ "$OPTION" != "Finish" ] ; do
-        MENU=("Pick a file: $FILE"
+        MENU=("Pick a file: $FILE $SIZE"
             "Output PDF name: $OUTPUTNAME"  
             "Starting page number: $STARTINGPAGE"  
             "Ending page number: $ENDINGPAGE"
@@ -42,7 +42,7 @@ elif [[ $1 = "" ]]; then
         option
         re='^[0-9]+$'
             case $OPTION in
-                "Pick a file: $FILE")
+                "Pick a file: $FILE $SIZE")
                     FILE=`zenity --file-selection --file-filter="*.pdf" --title="Select a File"`
                     SIZE="`qpdf --show-npages $FILE`";;
                 "Output PDF name: $OUTPUTNAME")
@@ -58,7 +58,7 @@ elif [[ $1 = "" ]]; then
                         elif ! [[ $STARTINGPAGE =~ $re ]]; then
                             STARTINGPAGE=""
                             zenity --error --width=400 --height=200 --text "Page number is not an integer!"
-                        elif [[ $STARTINGPAGE > $SIZE ]]; then
+                        elif [[ $STARTINGPAGE -gt $SIZE ]]; then
                             STARTINGPAGE=""
                             zenity --error --width=400 --height=200 --text "There are no pages with this index!"
                         else
@@ -70,7 +70,7 @@ elif [[ $1 = "" ]]; then
                     else
                         if [[ $FILE == "" ]]; then
                             zenity --error --width=400 --height=200 --text "You did not pick any file!"
-                        elif [[ $STARTINGPAGE > $ENDINGPAGE ]]; then
+                        elif [[ $STARTINGPAGE -gt $ENDINGPAGE ]]; then
                             STARTINGPAGE=""
                             ENDINGPAGE=""
                             zenity --error --width=400 --height=200 --text "Starting page is greater than ending page"
@@ -80,7 +80,7 @@ elif [[ $1 = "" ]]; then
                         elif ! [[ $ENDINGPAGE =~ $re ]]; then
                             ENDINGPAGE=""
                             zenity --error --width=400 --height=200 --text "Ending page number is not an integer!"
-                        elif [[ $ENDINGPAGE > $SIZE ]]; then
+                        elif [[ $ENDINGPAGE -gt $SIZE ]]; then
                             ENDINGPAGE=""
                             zenity --error --width=400 --height=200 --text "There are no pages with this index!"
                         else
