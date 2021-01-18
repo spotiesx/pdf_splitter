@@ -27,8 +27,8 @@ elif [[ $1 = "" ]]; then
     _SCRIPTPATH = pwd
     SIZE="0"
     FILE=""
-    STARTINGPAGE="1"
-    ENDINGPAGE="1"
+    STARTINGPAGE=""
+    ENDINGPAGE=""
     OUTPUTNAME=""
 
     while [ "$OPTION" != "Finish" ] ; do
@@ -88,6 +88,7 @@ elif [[ $1 = "" ]]; then
                                 OUTPUTNAME="extracted"
                             fi
                             qpdf $FILE --pages . $STARTINGPAGE-$ENDINGPAGE -- `pwd`/result_pdfs/$OUTPUTNAME.pdf   
+                        fi
                     fi 
             esac
     done
