@@ -6,13 +6,20 @@
 # Last Modified On : 18.01.2021 
 # Version          : 1.0.3
 #
-# Description      : 
+# Description      : Script  made  with  zenity  that enable user to split choosen
+#                    page or page from PDF file.
+#                    Program does not delete or change any files. User have to add
+#                    file  path, name of output file and starting page (and ending
+#                    page in case that user want to pick more than 1 page)
 # 
 #
 # Licensed under GPL (see /usr/share/common-licenses/GPL for more # details or contact the Free Software Foundation for a copy)
 
 if [[ $1 = "-h" ]]; then
-    echo "Short help instructions :)"
+    echo "1. Add file"
+    echo "2. Add output file name (if not, it's gonna be extracted), if in result_pdfs exist file with this name exist, it will be overwritten"
+    echo "3. Add number of first page you would like to extract"
+    echo "4. You can add ending page if you want to extract more then one page"
 elif [[ $1 = "-v" ]]; then
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     echo "          Version: 1.0.3"
@@ -32,7 +39,7 @@ elif [[ $1 = "" ]]; then
     OUTPUTNAME=""
 
     while [ "$OPTION" != "Finish" ] ; do
-        MENU=("Pick a file: $FILE $SIZE"
+        MENU=("Pick a file: $FILE"
             "Output PDF name: $OUTPUTNAME"  
             "Starting page number: $STARTINGPAGE"  
             "Ending page number: $ENDINGPAGE"
@@ -42,7 +49,7 @@ elif [[ $1 = "" ]]; then
         option
         re='^[0-9]+$'
             case $OPTION in
-                "Pick a file: $FILE $SIZE")
+                "Pick a file: $FILE")
                     FILE=`zenity --file-selection --file-filter="*.pdf" --title="Select a File"`
                     SIZE="`qpdf --show-npages $FILE`";;
                 "Output PDF name: $OUTPUTNAME")
